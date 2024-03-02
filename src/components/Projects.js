@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { getProjects } from '../services/documentService';
+import { getProjects, addProject } from '../services/documentService';
 
-const Projects = ({ userAccessLevel  }) => {
+const Projects = ({ userAccessLevel }) => {
     const [projects, setProjects] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getProjects();
+                const response = await getProjects(currentPage);
                 console.log('Response:', response.data);
                 setProjects(response.data);
             } catch (error) {
@@ -16,7 +17,22 @@ const Projects = ({ userAccessLevel  }) => {
         };
 
         fetchData();
-    }, []);
+    }, [currentPage]);
+
+    const onPageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleAddProject = async (newProject) => {
+        try {
+            await addProject(newProject);
+            // Мы не обновляем state напрямую, так как это повлечет за собой дополнительный запрос на сервер
+            // Вместо этого, мы просто увеличиваем текущую страницу, что приведет к повторному запросу с обновленными данными
+            setCurrentPage((prevPage) => prevPage + 1);
+        } catch (error) {
+            console.error('Ошибка при добавлении проекта:', error.message);
+        }
+    };
 
     const getReminderText = () => {
         if (userAccessLevel) {

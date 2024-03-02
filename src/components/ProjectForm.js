@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-
-const ProjectForm = ({ onAddProject }) => {
+import { addProject } from '../services/documentService';
+const ProjectForm = ({ onAddProject, onPageChange }) => {
     const [projectName, setProjectName] = useState('');
 
-    const handleAddProject = () => {
-        onAddProject({ name: projectName });
+    const handleAddProject = async () => {
+        const newProject = { name: projectName };
+        await addProject(newProject);
+        onAddProject(newProject);
         setProjectName('');
+        onPageChange(1); // Переходим на первую страницу после добавления проекта
     };
 
     return (

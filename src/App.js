@@ -1,9 +1,16 @@
+// App.js
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navigation from './components/Navigation';
 import Projects from './components/Projects';
+import Home from './components/Home';
 import Login from './components/Login';
 
+import './style/style.scss';
+
 const App = () => {
-    const [user, setUser] = useState(null);
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const [user, setUser] = useState(storedUser || null);
 
     const handleLogin = async (username, password) => {
         try {
@@ -18,6 +25,7 @@ const App = () => {
             if (response.ok) {
                 const userData = await response.json();
                 setUser(userData);
+                localStorage.setItem('user', JSON.stringify(userData));
             } else {
                 throw new Error('Не найдено');
             }
@@ -27,17 +35,25 @@ const App = () => {
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+    };
+
     return (
-        <div>
+        <Router>
             {user ? (
                 <div>
-                    <h1>Ваше приложение</h1>
-                    <Projects userAccessLevel={user.accessLevel} />
+                    <Navigation onLogout={handleLogout} />
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/projects" element={<Projects userAccessLevel={user.accessLevel} />} />
+                    </Routes>
                 </div>
             ) : (
                 <Login onLogin={handleLogin} />
             )}
-        </div>
+        </Router>
     );
 };
 
