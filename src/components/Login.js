@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
-const Login = ({onLogin}) => {
+const Login = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -10,16 +10,17 @@ const Login = ({onLogin}) => {
         e.preventDefault();
 
         try {
-            const response = await onLogin(username, password);
-            console.log('Авторизация успешна:', response);
+            const userData = await onLogin(username, password);
+            console.log('Авторизация успешна:', userData);
+            // Обновите ваш стейт или что-то еще с данными пользователя
         } catch (error) {
             console.error('Ошибка входа:', error.message);
-            // Используйте setErrorMessage из пропс
             if (typeof setErrorMessage === 'function') {
                 setErrorMessage(error.message || 'Неверное имя пользователя или пароль');
             }
         }
     };
+
     return (
         <section className="auth">
             <div className="container">

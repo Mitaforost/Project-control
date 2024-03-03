@@ -27,18 +27,20 @@ const Home = () => {
     }, []);
 
     return (
-        <div>
-            {loading ? (
-                <p>Загрузка данных...</p>
-            ) : (
-                <div>
-                    <h2>Статистика данных</h2>
-                    {Object.keys(dataStats).map((tableName, index) => (
-                        <p key={index}>{`Всего ${tableName}: ${dataStats[tableName].length}`}</p>
-                    ))}
-                </div>
-            )}
-        </div>
+        <section className="home">
+            <div className="container">
+                {loading ? (
+                    <p>Загрузка данных...</p>
+                ) : (
+                    <div className="home__inner">
+                        <h2 className="home__title">Статистика данных:</h2>
+                        {Object.keys(dataStats).map((tableName, index) => (
+                            <p className="home__item" key={index}>{`Всего ${tableName}: ${dataStats[tableName].rowCount}`}</p>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </section>
     );
 };
 
