@@ -1,0 +1,55 @@
+.projects{
+  &__info{
+    display: flex;
+    flex-direction: column;
+    background-color: #cccccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 50px;
+  }
+  &__title{
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  &__subtitle{
+    text-align: center;
+    font-size: 18px;
+    color: green;
+  }
+  &__list{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 30px;
+    row-gap: 30px;
+    margin-bottom: 20px;
+  }
+  &-card{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .3s;
+    &:hover{
+      border: 1px solid #007bff;
+    }
+    &__title{
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    &__subtitle{
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 20px;
+    }
+  }
+  &__pages{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span{
+      margin: 0 20px;
+    }
+  }
+}

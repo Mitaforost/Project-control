@@ -1,38 +1,33 @@
+// components/Projects.js
 import React, { useState, useEffect } from 'react';
-import { getProjects, addProject } from '../services/documentService';
+import { getProjects } from '../services/documentService';
+import ProjectCard from './ProjectCard';
 
 const Projects = ({ userAccessLevel }) => {
     const [projects, setProjects] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getProjects(currentPage);
-                console.log('Response:', response.data);
-                setProjects(response.data);
+                const { data, status, error } = await getProjects();
+
+                if (status !== 200) {
+                    setError(`Network response was not ok. Status: ${status}`);
+                    console.error('Full server response:', error);
+                    return;
+                }
+
+                setProjects(data);
+                setError(null);
             } catch (error) {
-                console.error('Ошибка при получении проектов:', error.message);
+                console.error('Error fetching projects:', error.message);
+                setError(error.message);
             }
         };
 
         fetchData();
-    }, [currentPage]);
-
-    const onPageChange = (newPage) => {
-        setCurrentPage(newPage);
-    };
-
-    const handleAddProject = async (newProject) => {
-        try {
-            await addProject(newProject);
-            // Мы не обновляем state напрямую, так как это повлечет за собой дополнительный запрос на сервер
-            // Вместо этого, мы просто увеличиваем текущую страницу, что приведет к повторному запросу с обновленными данными
-            setCurrentPage((prevPage) => prevPage + 1);
-        } catch (error) {
-            console.error('Ошибка при добавлении проекта:', error.message);
-        }
-    };
+    }, []);
 
     const getReminderText = () => {
         if (userAccessLevel) {
@@ -51,24 +46,34 @@ const Projects = ({ userAccessLevel }) => {
     };
 
     return (
-        <div>
-            {userAccessLevel && (
-                <div>
-                    <h2>Информация о роли пользователя</h2>
-                    <p>{getReminderText()}</p>
-                </div>
-            )}
-            <h2>Список проектов</h2>
-            <ul>
-                {projects.length > 0 ? (
-                    projects.map((project) => (
-                        <li key={project.ProjectID}>{project.ProjectName}</li>
-                    ))
-                ) : (
-                    <p>Данные загружаются...</p>
+        <section className="projects">
+            <div className="container">
+                {error && (
+                    <div className="projects__info">
+                        <h2 className="projects__title">Ошибка</h2>
+                        <p className="projects__subtitle">{error}</p>
+                    </div>
                 )}
-            </ul>
-        </div>
+                {userAccessLevel && (
+                    <div className="projects__info">
+                        <h2 className="projects__title">Информация о роли пользователя</h2>
+                        <p className="projects__subtitle">{getReminderText()}</p>
+                    </div>
+                )}
+                <h2 className="projects__title">Список проектов</h2>
+                <ul className="projects__list">
+                    {projects.length > 0 ? (
+                        projects.map((project) => (
+                            <li className="projects__item" key={project.ProjectID}>
+                                <ProjectCard project={project} />
+                            </li>
+                        ))
+                    ) : (
+                        <p className="projects__message">Данные загружаются...</p>
+                    )}
+                </ul>
+            </div>
+        </section>
     );
 };
 

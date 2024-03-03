@@ -12,6 +12,7 @@ input,
 body {
   padding: 0;
   background-color: #F4F5F8;
+  color: #333333;
 }
 
 .container {
@@ -25,7 +26,10 @@ ul {
   margin: 0;
   padding: 0;
 }
-
+a{
+  text-decoration: none;
+  color: inherit;
+}
 .h1, h1 {
   font-size: 40px;
   font-weight: 900;
@@ -35,6 +39,11 @@ ul {
 .h2, h2 {
   font-size: 31px;
   font-weight: 700;
+  line-height: normal;
+}
+.h3, h3 {
+  font-size: 22px;
+  font-weight: 600;
   line-height: normal;
 }
 
@@ -67,4 +76,7 @@ p {
 }
 
 @import "blocks/buttons";
+@import "blocks/modal";
 @import "blocks/loginPage";
+@import "blocks/navigation";
+@import "blocks/projects";

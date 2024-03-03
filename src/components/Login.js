@@ -14,10 +14,12 @@ const Login = ({onLogin}) => {
             console.log('Авторизация успешна:', response);
         } catch (error) {
             console.error('Ошибка входа:', error.message);
-            setErrorMessage('Не верное имя или неверный пароль');
+            // Используйте setErrorMessage из пропс
+            if (typeof setErrorMessage === 'function') {
+                setErrorMessage(error.message || 'Неверное имя пользователя или пароль');
+            }
         }
     };
-
     return (
         <section className="auth">
             <div className="container">

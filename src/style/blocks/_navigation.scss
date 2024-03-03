@@ -1,0 +1,25 @@
+.navigation{
+  padding: 20px 0;
+  margin-bottom: 50px;
+  &__inner{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  &__list{
+    display: flex;
+    align-items: center;
+  }
+  &__item{
+    margin-right: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    transition: all .3s;
+    &:last-child{
+      margin-right: 0;
+    }
+    &:hover{
+      color: #007bff;
+    }
+  }
+}

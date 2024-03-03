@@ -1,17 +1,41 @@
-// Home.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-const Home = ({ user }) => {
+const Home = () => {
+    const [dataStats, setDataStats] = useState({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDataStats = async () => {
+            try {
+                const response = await fetch('http://localhost:3001/alldata');
+
+                if (!response.ok) {
+                    throw new Error('Error fetching data stats');
+                }
+
+                const dataStats = await response.json();
+
+                setDataStats(dataStats);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching data stats:', error.message);
+                setLoading(false);
+            }
+        };
+
+        fetchDataStats();
+    }, []);
+
     return (
         <div>
-            <h2>Домашняя страница</h2>
-            {user && (
+            {loading ? (
+                <p>Загрузка данных...</p>
+            ) : (
                 <div>
-                    <p>Привет, {user.firstName} {user.lastName}!</p>
-                    <p>Вы вошли как {user.roleName}.</p>
-                    <p>Общее количество проектов: {user.totalProjects}</p>
-                    <p>Общее количество задач: {user.totalTasks}</p>
-                    {/* Добавьте другие статистические данные по желанию */}
+                    <h2>Статистика данных</h2>
+                    {Object.keys(dataStats).map((tableName, index) => (
+                        <p key={index}>{`Всего ${tableName}: ${dataStats[tableName].length}`}</p>
+                    ))}
                 </div>
             )}
         </div>

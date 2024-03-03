@@ -1,4 +1,3 @@
-// App.js
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from './components/Navigation';
@@ -11,10 +10,11 @@ import './style/style.scss';
 const App = () => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const [user, setUser] = useState(storedUser || null);
+    const [ setErrorMessage] = useState('');
 
     const handleLogin = async (username, password) => {
         try {
-            const response = await fetch('http://localhost:3001/login', {
+            const response = await fetch('http://localhost:3001/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,11 +27,14 @@ const App = () => {
                 setUser(userData);
                 localStorage.setItem('user', JSON.stringify(userData));
             } else {
-                throw new Error('Не найдено');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Неизвестная ошибка');
             }
         } catch (error) {
             console.error('Ошибка входа:', error.message);
-            throw error;
+            // Явное указание ESLint, что setErrorMessage определена внутри функции
+            // eslint-disable-next-line no-undef
+            setErrorMessage(error.message || 'Что-то пошло не так');
         }
     };
 
@@ -51,7 +54,7 @@ const App = () => {
                     </Routes>
                 </div>
             ) : (
-                <Login onLogin={handleLogin} />
+                <Login onLogin={handleLogin} setErrorMessage={setErrorMessage} />
             )}
         </Router>
     );
