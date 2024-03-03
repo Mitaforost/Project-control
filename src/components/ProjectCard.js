@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Modal from './Modal'; // Предполагается, что у вас есть компонент модального окна
+import Modal from './Modal';
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, onEdit }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openModal = () => {
@@ -12,17 +12,23 @@ const ProjectCard = ({ project }) => {
         setIsModalOpen(false);
     };
 
+    const handleSave = (editedProject) => {
+        // Handle saving the edited project (e.g., make an API call)
+        console.log('Saving edited project:', editedProject);
+        // For simplicity, we'll just log the edited project for now
+        onEdit(editedProject);
+    };
+
     return (
         <div className="projects-card">
             <h3 className="projects-card__title">{project.ProjectName}</h3>
             <p className="projects-card__subtitle">{project.ProjectDescription}</p>
-            <button className="btn-primary" onClick={openModal}>Подробнее</button>
+            <button className="btn-primary" onClick={openModal}>
+                Подробнее
+            </button>
 
             {isModalOpen && (
-                <Modal onClose={closeModal}>
-                    <h2 className="projects__title">{project.ProjectName}</h2>
-                    <p className="projects-card__subtitle">{project.ProjectDescription}</p>
-                </Modal>
+                <Modal onClose={closeModal} project={project} onSave={handleSave} />
             )}
         </div>
     );

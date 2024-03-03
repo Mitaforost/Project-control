@@ -1,11 +1,13 @@
 // components/Projects.js
 import React, { useState, useEffect } from 'react';
-import { getProjects } from '../services/documentService';
+import { getProjects, addProject } from '../services/documentService';
 import ProjectCard from './ProjectCard';
+import Modal from './Modal';
 
 const Projects = ({ userAccessLevel }) => {
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,6 +46,23 @@ const Projects = ({ userAccessLevel }) => {
         }
         return '';
     };
+    const handleAddProject = async (newProject) => {
+        try {
+            const { data, status, error } = await addProject(newProject);
+
+            if (status !== 201) {
+                setError(`Failed to add a new project. Status: ${status}`);
+                console.error('Full server response:', error);
+                return;
+            }
+
+            setProjects([...projects, data]);
+            setError(null);
+        } catch (error) {
+            console.error('Error adding a new project:', error.message);
+            setError(error.message);
+        }
+    };
 
     return (
         <section className="projects">
@@ -72,6 +91,13 @@ const Projects = ({ userAccessLevel }) => {
                         <p className="projects__message">Данные загружаются...</p>
                     )}
                 </ul>
+                <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+                    Добавить новый проект
+                </button>
+
+                {isModalOpen && (
+                    <Modal onClose={() => setIsModalOpen(false)} onAddProject={handleAddProject} />
+                )}
             </div>
         </section>
     );

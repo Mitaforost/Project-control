@@ -33,10 +33,17 @@ const Home = () => {
                     <p>Загрузка данных...</p>
                 ) : (
                     <div className="home__inner">
-                        <h2 className="home__title">Статистика данных:</h2>
-                        {Object.keys(dataStats).map((tableName, index) => (
-                            <p className="home__item" key={index}>{`Всего ${tableName}: ${dataStats[tableName].rowCount}`}</p>
-                        ))}
+                        <div className="home__stats">
+                            <h2 className="home__title">Общая статистика:</h2>
+                            <p className="home__item">Всего проектов: {dataStats['Projects'].rowCount}</p>
+                            <p className="home__item">Всего сотрудников: {dataStats['Employees'].rowCount}</p>
+                        </div>
+                        <div className="home__stats">
+                            <h2 className="home__title">Статистика данных:</h2>
+                            {Object.keys(dataStats).map((tableName, index) => (
+                                <p className="home__item" key={index}>{`Всего ${tableName}: ${dataStats[tableName].rowCount}`}</p>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

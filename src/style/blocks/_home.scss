@@ -1,7 +1,8 @@
 .home{
   &__inner{
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 50px;
   }
   &__title{
     margin-bottom: 20px;
