@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
+import {deleteProject} from "../services/documentService";
 
 const ProjectCard = ({ project, onEdit }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -8,16 +9,19 @@ const ProjectCard = ({ project, onEdit }) => {
         setIsModalOpen(true);
     };
 
-    const closeModal = () => {
+    const handleSave = (editedFields) => {
+        onEdit({ ...project, ...editedFields });
         setIsModalOpen(false);
     };
-
-    const handleSave = (editedProject) => {
-        // Handle saving the edited project (e.g., make an API call)
-        console.log('Saving edited project:', editedProject);
-        // For simplicity, we'll just log the edited project for now
-        onEdit(editedProject);
+    const handleDelete = async (projectId) => {
+        try {
+            await deleteProject(projectId);
+            console.log('Project deleted successfully:', projectId);
+        } catch (error) {
+            console.error('Error deleting project:', error.message);
+        }
     };
+
 
     return (
         <div className="projects-card">
@@ -28,7 +32,7 @@ const ProjectCard = ({ project, onEdit }) => {
             </button>
 
             {isModalOpen && (
-                <Modal onClose={closeModal} project={project} onSave={handleSave} />
+                <Modal onClose={() => setIsModalOpen(false)} project={project} onSave={handleSave} onDelete={handleDelete} />
             )}
         </div>
     );

@@ -22,3 +22,32 @@ export const addProject = async (project) => {
         throw error;
     }
 };
+
+export const editProject = async (editedProject) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/projects/${editedProject.ProjectID}`, editedProject);
+        console.log('Edit Project Response:', response);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+export const createProject = async (project) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/projects`, project);
+        console.log('Create Project Response:', response);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+export const deleteProject = async (projectId) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/api/projects/${projectId}`);
+        console.log('Delete Project Response:', response);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+

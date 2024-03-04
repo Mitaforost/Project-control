@@ -1,33 +1,33 @@
 // components/Projects.js
-import React, { useState, useEffect } from 'react';
-import { getProjects, addProject } from '../services/documentService';
+import React, {useState, useEffect} from 'react';
+import {getProjects, editProject, createProject, deleteProject} from '../services/documentService';
 import ProjectCard from './ProjectCard';
 import Modal from './Modal';
 
-const Projects = ({ userAccessLevel }) => {
+const Projects = ({userAccessLevel}) => {
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { data, status, error } = await getProjects();
+    const fetchData = async () => {
+        try {
+            const {data, status, error} = await getProjects();
 
-                if (status !== 200) {
-                    setError(`Network response was not ok. Status: ${status}`);
-                    console.error('Full server response:', error);
-                    return;
-                }
-
-                setProjects(data);
-                setError(null);
-            } catch (error) {
-                console.error('Error fetching projects:', error.message);
-                setError(error.message);
+            if (status !== 200) {
+                setError(`Network response was not ok. Status: ${status}`);
+                console.error('Full server response:', error);
+                return;
             }
-        };
 
+            setProjects(data);
+            setError(null);
+        } catch (error) {
+            console.error('Error fetching projects:', error.message);
+            setError(error.message);
+        }
+    };
+
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -46,20 +46,54 @@ const Projects = ({ userAccessLevel }) => {
         }
         return '';
     };
+
     const handleAddProject = async (newProject) => {
         try {
-            const { data, status, error } = await addProject(newProject);
+            const createdProject = await createProject(newProject);
+            setProjects([...projects, createdProject]);
+            setIsModalOpen(false);
+            setError(null);
+        } catch (error) {
+            console.error('Error creating a new project:', error.message);
+            setError(error.message);
+        }
+    };
 
-            if (status !== 201) {
-                setError(`Failed to add a new project. Status: ${status}`);
+
+    const handleEditProject = async (editedProject) => {
+        try {
+            const {data, status, error} = await editProject(editedProject);
+
+            if (status !== 200) {
+                setError(`Failed to edit the project. Status: ${status}`);
                 console.error('Full server response:', error);
                 return;
             }
 
-            setProjects([...projects, data]);
+            // Обновляем projects с отредактированным проектом
+            setProjects((prevProjects) => {
+                const updatedProjects = prevProjects.map((project) =>
+                    project.ProjectID === editedProject.ProjectID ? data : project
+                );
+                return updatedProjects;
+            });
+
             setError(null);
         } catch (error) {
-            console.error('Error adding a new project:', error.message);
+            console.error('Error editing the project:', error.message);
+            setError(error.message);
+        }
+    };
+    const handleDeleteProject = async (projectId) => {
+        console.log('Deleting project with ID:', projectId);
+
+        try {
+            await deleteProject(projectId);
+
+            // После успешного удаления обновляем проекты
+            fetchData();
+        } catch (error) {
+            console.error('Error deleting the project:', error.message);
             setError(error.message);
         }
     };
@@ -84,7 +118,7 @@ const Projects = ({ userAccessLevel }) => {
                     {projects.length > 0 ? (
                         projects.map((project) => (
                             <li className="projects__item" key={project.ProjectID}>
-                                <ProjectCard project={project} />
+                                <ProjectCard project={project} onEdit={handleEditProject}/>
                             </li>
                         ))
                     ) : (
@@ -94,9 +128,9 @@ const Projects = ({ userAccessLevel }) => {
                 <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
                     Добавить новый проект
                 </button>
-
                 {isModalOpen && (
-                    <Modal onClose={() => setIsModalOpen(false)} onAddProject={handleAddProject} />
+                    <Modal onClose={() => setIsModalOpen(false)} onSave={handleAddProject}
+                           onDelete={handleDeleteProject} onUpdateProjects={fetchData}/>
                 )}
             </div>
         </section>

@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const Modal = ({ onClose, project, onSave }) => {
+const Modal = ({ onClose, project, onSave, onDelete, onUpdateProjects}) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editedProject, setEditedProject] = useState({ ...project });
+
+    useEffect(() => {
+        if (project) {
+            setEditedProject({ ...project });
+        }
+    }, [project]);
 
     const handleEditClick = () => {
         setIsEditMode(true);
     };
 
     const handleSaveClick = () => {
-        onSave(editedProject);
-        onClose();
+        if (editedProject) {
+            onSave(editedProject);
+            setIsEditMode(false);
+        }
     };
+
+    const handleDeleteClick = () => {
+        console.log('Deleting project with ID:', editedProject.ProjectID);
+        if (onDelete && typeof onDelete === 'function') {
+            onDelete(editedProject.ProjectID);
+        }
+        setIsEditMode(false);
+
+        // Вызываем функцию обновления проектов
+        if (onUpdateProjects && typeof onUpdateProjects === 'function') {
+            onUpdateProjects();
+        }
+    };
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -22,7 +44,7 @@ const Modal = ({ onClose, project, onSave }) => {
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay">
             <div className="modal">
                 <button className="btn-primary close-button" onClick={onClose}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="20" height="20">
@@ -31,8 +53,9 @@ const Modal = ({ onClose, project, onSave }) => {
                 </button>
                 <h2 className="modal__title">{isEditMode ? 'Редактирование проекта' : 'Просмотр проекта'}</h2>
                 <div className="modal__content">
-                    <label htmlFor="projectName">Название проекта:</label>
+                    <label className="modal__label" htmlFor="projectName">Название проекта:</label>
                     <input
+                        className="modal__text"
                         type="text"
                         id="projectName"
                         name="ProjectName"
@@ -40,8 +63,9 @@ const Modal = ({ onClose, project, onSave }) => {
                         onChange={handleInputChange}
                         disabled={!isEditMode}
                     />
-                    <label htmlFor="projectDescription">Описание проекта:</label>
+                    <label className="modal__label" htmlFor="projectDescription">Описание проекта:</label>
                     <textarea
+                        className="modal__text"
                         id="projectDescription"
                         name="ProjectDescription"
                         value={editedProject.ProjectDescription}
@@ -50,9 +74,17 @@ const Modal = ({ onClose, project, onSave }) => {
                     />
                 </div>
                 {isEditMode ? (
-                    <button className="btn-primary" onClick={handleSaveClick}>
-                        Сохранить изменения
-                    </button>
+                    <div>
+                        <button className="btn-primary" onClick={handleSaveClick}>
+                            Сохранить изменения
+                        </button>
+                        <button className="btn-primary" onClick={() => setIsEditMode(false)}>
+                            Отмена
+                        </button>
+                        <button className="btn-primary" onClick={handleDeleteClick}>
+                            Удалить проект
+                        </button>
+                    </div>
                 ) : (
                     <button className="btn-primary" onClick={handleEditClick}>
                         Редактировать проект
