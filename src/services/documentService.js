@@ -32,6 +32,7 @@ export const editProject = async (editedProject) => {
         throw error;
     }
 };
+
 export const createProject = async (project) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/api/projects`, project);
@@ -41,6 +42,7 @@ export const createProject = async (project) => {
         throw error;
     }
 };
+
 export const deleteProject = async (projectId) => {
     try {
         const response = await axios.delete(`${API_BASE_URL}/api/projects/${projectId}`);
@@ -50,4 +52,57 @@ export const deleteProject = async (projectId) => {
         throw error;
     }
 };
+
+export const getDocuments = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/documents`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching documents:', error.message);
+        throw error;
+    }
+};
+
+export const createDocument = async (documentData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/documents`, documentData);
+        console.log('Create Document Response:', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating a new document:', error.message);
+        throw error;
+    }
+};
+
+export const getDocumentsByUser = async (userID) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/documents/${userID}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching documents by user:', error.message);
+        throw error;
+    }
+};
+
+export const signDocument = async (documentID) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/documents/${documentID}/sign`);
+        console.log('Sign Document Response:', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error signing document:', error.message);
+        throw error;
+    }
+};
+export const updateDocumentStatus = async (documentID, newStatus) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/documents/${documentID}/status`, { newStatus });
+        console.log('Update Document Status Response:', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating document status:', error.message);
+        throw error;
+    }
+};
+
 

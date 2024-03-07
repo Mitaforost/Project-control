@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import Projects from './components/Projects';
 import Home from './components/Home';
 import Login from './components/Login';
+import Documents from './components/Documents';
 
 import './style/style.scss';
 
@@ -51,6 +52,7 @@ const App = () => {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/projects" element={<Projects userAccessLevel={user.accessLevel} />} />
+                        <Route path="/documents" element={<Documents />} />
                     </Routes>
                 </div>
             ) : (

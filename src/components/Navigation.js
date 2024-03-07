@@ -13,6 +13,9 @@ const Navigation = ({ onLogout }) => {
                         <li className="navigation__item">
                             <Link to="/projects">Проекты</Link>
                         </li>
+                        <li className="navigation__item">
+                            <Link to="/documents">Документы</Link>
+                        </li>
                     </ul>
                     <button className="btn-primary" onClick={onLogout}>Выйти</button>
                 </nav>
