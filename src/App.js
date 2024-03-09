@@ -9,9 +9,19 @@ import Documents from './components/Documents';
 import './style/style.scss';
 
 const App = () => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    const [user, setUser] = useState(storedUser || null);
-    const [ setErrorMessage] = useState('');
+    // Attempt to parse the user data from localStorage
+    let storedUser;
+    try {
+        storedUser = JSON.parse(localStorage.getItem('user')) || null;
+    } catch (error) {
+        // Handle the error, you might want to clear the invalid data from localStorage
+        console.error('Error parsing user data from localStorage:', error.message);
+        localStorage.removeItem('user');
+        storedUser = null;
+    }
+
+    const [user, setUser] = useState(storedUser);
+    const [, setErrorMessage] = useState('');
 
     const handleLogin = async (username, password) => {
         try {
@@ -33,8 +43,6 @@ const App = () => {
             }
         } catch (error) {
             console.error('Ошибка входа:', error.message);
-            // Явное указание ESLint, что setErrorMessage определена внутри функции
-            // eslint-disable-next-line no-undef
             setErrorMessage(error.message || 'Что-то пошло не так');
         }
     };
