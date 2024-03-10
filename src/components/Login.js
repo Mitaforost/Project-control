@@ -17,10 +17,11 @@ const Login = ({ onLogin }) => {
                 setErrorMessage('Invalid username or password');
             }
         } catch (error) {
-            console.error('Error during login:', error.message);
+            console.error('Error during login:', error);  // Обратите внимание на изменение здесь
             setErrorMessage('Invalid username or password');
         }
     };
+
 
     return (
         <section className="auth">

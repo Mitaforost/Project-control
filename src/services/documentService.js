@@ -96,9 +96,9 @@ export const getDocumentsByUser = async (userID) => {
     }
 };
 
-export const signDocument = async (documentID) => {
+export const signDocument = async (documentID, userAccessLevel) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/api/documents/${documentID}/sign`);
+        const response = await axios.put(`${API_BASE_URL}/api/documents/${documentID}/sign`, { userAccessLevel });
         console.log('Sign Document Response:', response);
         return response.data;
     } catch (error) {
@@ -106,9 +106,10 @@ export const signDocument = async (documentID) => {
         throw error;
     }
 };
-export const updateDocumentStatus = async (documentID, newStatus) => {
+
+export const updateDocumentStatus = async (documentID, newStatus, userAccessLevel) => {
     try {
-        const response = await axios.put(`${API_BASE_URL}/api/documents/${documentID}/status`, { newStatus });
+        const response = await axios.put(`${API_BASE_URL}/api/documents/${documentID}/status`, { newStatus, userAccessLevel });
         console.log('Update Document Status Response:', response);
         return response.data;
     } catch (error) {

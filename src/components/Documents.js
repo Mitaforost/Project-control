@@ -1,4 +1,3 @@
-// Documents.js
 import React, { useState, useEffect } from 'react';
 import { getDocuments, updateDocumentStatus, signDocument } from '../services/documentService';
 import DocumentForm from './DocumentForm';
@@ -7,14 +6,27 @@ import DocumentTable from './DocumentTable';
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
+    const [userAccessLevel] = useState(1);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDocuments = async () => {
             try {
-                const data = await getDocuments();
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    console.error('Access Denied. No token provided.');
+                    setLoading(false);
+                    return;
+                }
+
+                const data = await getDocuments(); // Исправление: Используем функцию getDocuments вместо fetch
+
                 setDocuments(data);
+                setLoading(false); // Исправление: Устанавливаем loading в false после получения данных
             } catch (error) {
                 console.error('Error fetching documents:', error);
+                setLoading(false); // Исправление: Устанавливаем loading в false при ошибке
             }
         };
 
@@ -27,8 +39,7 @@ const Documents = () => {
 
     const handleSignDocument = async (documentID) => {
         try {
-            const signedDocument = await signDocument(documentID);
-            // Обновите локальный стейт после успешного подписания
+            const signedDocument = await signDocument(documentID, userAccessLevel);
             setDocuments((prevDocuments) =>
                 prevDocuments.map((doc) =>
                     doc.DocumentID === signedDocument.DocumentID ? signedDocument : doc
@@ -40,20 +51,23 @@ const Documents = () => {
         }
     };
 
-
     const handleChangeStatus = async (documentID, newStatus) => {
         try {
-            // eslint-disable-next-line no-unused-vars
-            const updatedDocument = await updateDocumentStatus(documentID, newStatus);
+            const updatedDocument = await updateDocumentStatus(documentID, newStatus, userAccessLevel);
             setDocuments((prevDocuments) =>
                 prevDocuments.map((doc) =>
-                    doc.DocumentID === documentID ? { ...doc, Status: newStatus } : doc
+                    doc.DocumentID === updatedDocument.DocumentID ? updatedDocument : doc
                 )
             );
+            // Дополнительные действия, если необходимо
         } catch (error) {
             console.error('Error changing document status:', error.message);
         }
     };
+
+    if (loading) {
+        return <p>Loading...</p>; // Исправление: Добавлено отображение загрузки
+    }
 
     return (
         <section className="documents">
@@ -66,7 +80,8 @@ const Documents = () => {
                         <DocumentCard
                             key={document.DocumentID}
                             document={document}
-                            onChangeStatus={handleChangeStatus}
+                            onChangeStatus={(documentID, newStatus) => handleChangeStatus(documentID, newStatus, userAccessLevel)}
+                            onSignDocument={(documentID) => handleSignDocument(documentID, userAccessLevel)}
                         />
                     ))}
                 </div>
