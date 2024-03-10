@@ -1,3 +1,4 @@
+// Login.js
 import React, { useState } from 'react';
 
 const Login = ({ onLogin }) => {
@@ -6,18 +7,18 @@ const Login = ({ onLogin }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-
+    const handleLogin = async () => {
         try {
             const userData = await onLogin(username, password);
-            console.log('Авторизация успешна:', userData);
-            // Обновите ваш стейт или что-то еще с данными пользователя
-        } catch (error) {
-            console.error('Ошибка входа:', error.message);
-            if (typeof setErrorMessage === 'function') {
-                setErrorMessage(error.message || 'Неверное имя пользователя или пароль');
+
+            if (userData) {
+                // Обработка успешной авторизации, если необходимо
+            } else {
+                setErrorMessage('Invalid username or password');
             }
+        } catch (error) {
+            console.error('Error during login:', error.message);
+            setErrorMessage('Invalid username or password');
         }
     };
 
@@ -26,7 +27,10 @@ const Login = ({ onLogin }) => {
             <div className="container">
                 <div className="auth__inner">
                     <h2 className="auth__title">Форма авторизации</h2>
-                    <form className="auth__form" onSubmit={handleLogin}>
+                    <form className="auth__form" onSubmit={(e) => {
+                        e.preventDefault(); // Предотвратить стандартное поведение отправки формы
+                        handleLogin();
+                    }}>
                         <label className="auth__label">
                             Имя пользователя:
                             <input

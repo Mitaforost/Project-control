@@ -3,6 +3,18 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3001';
 
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log('Request headers:', config.headers);
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+
 export const getProjects = async (page) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/projects?page=${page}`);
@@ -104,5 +116,3 @@ export const updateDocumentStatus = async (documentID, newStatus) => {
         throw error;
     }
 };
-
-

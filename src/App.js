@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+//App.js
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Projects from './components/Projects';
@@ -9,19 +10,18 @@ import Documents from './components/Documents';
 import './style/style.scss';
 
 const App = () => {
-    // Attempt to parse the user data from localStorage
-    let storedUser;
-    try {
-        storedUser = JSON.parse(localStorage.getItem('user')) || null;
-    } catch (error) {
-        // Handle the error, you might want to clear the invalid data from localStorage
-        console.error('Error parsing user data from localStorage:', error.message);
-        localStorage.removeItem('user');
-        storedUser = null;
-    }
-
-    const [user, setUser] = useState(storedUser);
+    const [user, setUser] = useState(null);
     const [, setErrorMessage] = useState('');
+
+    useEffect(() => {
+        // Попытка извлечь данные пользователя из localStorage
+        const storedToken = localStorage.getItem('token');
+
+        if (storedToken) {
+            // Если токен есть, устанавливаем его в состояние пользователя
+            setUser({ token: storedToken });
+        }
+    }, []);
 
     const handleLogin = async (username, password) => {
         try {
@@ -36,9 +36,15 @@ const App = () => {
             if (response.ok) {
                 const userData = await response.json();
                 setUser(userData);
-                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('token', userData.token);
             } else {
-                const errorData = await response.json();
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (error) {
+                    // If parsing as JSON fails, use the response text as the error message
+                    errorData = { message: response.statusText || 'Unknown error occurred' };
+                }
                 throw new Error(errorData.message || 'Неизвестная ошибка');
             }
         } catch (error) {
@@ -47,8 +53,9 @@ const App = () => {
         }
     };
 
+
     const handleLogout = () => {
-        localStorage.removeItem('user');
+        localStorage.removeItem('token');
         setUser(null);
     };
 
