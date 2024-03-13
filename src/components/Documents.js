@@ -1,5 +1,6 @@
+// Documents.js
 import React, { useState, useEffect } from 'react';
-import { getDocuments, updateDocumentStatus, signDocument } from '../services/documentService';
+import { getDocuments, updateDocumentStatus, signDocument, getDocumentById } from '../services/documentService';
 import DocumentForm from './DocumentForm';
 import DocumentCard from './DocumentCard';
 import DocumentTable from './DocumentTable';
@@ -8,7 +9,7 @@ const Documents = () => {
     const [documents, setDocuments] = useState([]);
     const [userAccessLevel] = useState(1);
     const [loading, setLoading] = useState(true);
-
+    const [updatedDocuments, setUpdatedDocuments] = useState([]);
     useEffect(() => {
         const fetchDocuments = async () => {
             try {
@@ -20,13 +21,13 @@ const Documents = () => {
                     return;
                 }
 
-                const data = await getDocuments(); // Исправление: Используем функцию getDocuments вместо fetch
+                const data = await getDocuments();
 
                 setDocuments(data);
-                setLoading(false); // Исправление: Устанавливаем loading в false после получения данных
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching documents:', error);
-                setLoading(false); // Исправление: Устанавливаем loading в false при ошибке
+                setLoading(false);
             }
         };
 
@@ -39,34 +40,79 @@ const Documents = () => {
 
     const handleSignDocument = async (documentID) => {
         try {
-            const signedDocument = await signDocument(documentID, userAccessLevel);
-            setDocuments((prevDocuments) =>
-                prevDocuments.map((doc) =>
-                    doc.DocumentID === signedDocument.DocumentID ? signedDocument : doc
-                )
-            );
-            // Дополнительные действия, если необходимо
+            const document = await getDocumentById(documentID);
+
+            if (!document || !document.Status) {
+                console.error('Document status not available:', document);
+                return;
+            }
+
+            console.log('Document status before signing:', document.Status);
+
+            if (document.Status === 'Signed') {
+                console.log('Document is already signed.');
+                return;
+            }
+
+            if (document.Status === 'Pending') {
+                const signedDocument = await signDocument(documentID, 'Администратор');
+                // handle the signed document or perform other actions
+                console.log('Document signed successfully:', signedDocument);
+            } else {
+                console.error('Invalid document status for signing:', document.Status);
+            }
         } catch (error) {
             console.error('Error signing document:', error.message);
+            alert(error.message);
         }
     };
 
+    const onChangeStatus = async (documentID, newStatus) => {
+        try {
+            console.log(`Document ${documentID} status changed to ${newStatus}`);
+
+            // If the document is signed, fetch the updated document information
+            if (newStatus === 'Signed') {
+                const updatedDocument = await getDocumentById(documentID);
+                setUpdatedDocuments((prevDocuments) =>
+                    prevDocuments.map((doc) =>
+                        doc.DocumentID === updatedDocument.DocumentID ? updatedDocument : doc
+                    )
+                );
+            }
+        } catch (error) {
+            console.error('Error handling document status change:', error.message);
+        }
+    };
     const handleChangeStatus = async (documentID, newStatus) => {
         try {
-            const updatedDocument = await updateDocumentStatus(documentID, newStatus, userAccessLevel);
-            setDocuments((prevDocuments) =>
+            console.log(`Change status of document ${documentID} to ${newStatus}`);
+            console.log('sentByUserID:', userAccessLevel);
+
+            // Преобразуйте userAccessLevel в числовое значение
+            const numericSentByUserID = parseInt(userAccessLevel, 10);
+
+            if (isNaN(numericSentByUserID)) {
+                throw new Error('Invalid sentByUserID. Must be a valid number.');
+            }
+
+            const updatedDocument = await updateDocumentStatus(documentID, newStatus, numericSentByUserID);
+            onChangeStatus(documentID, newStatus);
+
+            setUpdatedDocuments((prevDocuments) =>
                 prevDocuments.map((doc) =>
                     doc.DocumentID === updatedDocument.DocumentID ? updatedDocument : doc
                 )
             );
-            // Дополнительные действия, если необходимо
         } catch (error) {
             console.error('Error changing document status:', error.message);
+            alert(error.message);
         }
     };
 
+
     if (loading) {
-        return <p>Loading...</p>; // Исправление: Добавлено отображение загрузки
+        return <p>Loading...</p>;
     }
 
     return (
@@ -81,13 +127,20 @@ const Documents = () => {
                             key={document.DocumentID}
                             document={document}
                             onChangeStatus={(documentID, newStatus) => handleChangeStatus(documentID, newStatus, userAccessLevel)}
-                            onSignDocument={(documentID) => handleSignDocument(documentID, userAccessLevel)}
+                            onSignDocument={(documentID) => handleSignDocument(documentID)}
+                            setUpdatedDocuments={setUpdatedDocuments}  // Передаем setUpdatedDocuments
                         />
                     ))}
                 </div>
                 <div>
                     <h2 className="documents__title">Таблица документов</h2>
-                    <DocumentTable documents={documents} onSignDocument={handleSignDocument} />
+                    <DocumentTable
+                        documents={documents}
+                        onSignDocument={handleSignDocument}
+                        sentByUserID={userAccessLevel}
+                        onChangeStatus={handleChangeStatus}
+                        userAccessLevel={userAccessLevel}
+                    />
                 </div>
             </div>
         </section>

@@ -8,7 +8,18 @@ const DocumentForm = ({ onAddDocument }) => {
 
     const handleCreateDocument = async () => {
         try {
-            const newDocument = await createDocument({ Title: title, Content: content });
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                console.error('Access Denied. No token provided.');
+                return;
+            }
+
+            console.log('Creating document with data:', { Title: title, Content: content });
+
+            const newDocument = await createDocument({ Title: title, Content: content }, token);
+            console.log('Create Document Response:', newDocument);
+
             onAddDocument(newDocument);
             // Очистка полей формы или другие действия, если нужно
             setTitle('');
