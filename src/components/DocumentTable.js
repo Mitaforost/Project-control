@@ -29,34 +29,38 @@ const DocumentTable = ({ documents, onSignDocument, sentByUserID, onChangeStatus
 
     const handleSignClick = async (documentID) => {
         try {
+            // Получаем информацию о документе по его ID
             const document = await getDocumentById(documentID);
 
+            // Проверяем, найден ли документ и доступен ли его статус
             if (!document || !document.Status) {
                 console.error('Document status not available:', document);
                 return;
             }
 
-            console.log('Document status before signing:', document.Status);
-
+            // Если статус документа уже "Signed", выводим сообщение и завершаем функцию
             if (document.Status === 'Signed') {
                 console.log('Document is already signed.');
                 return;
             }
 
+            // Подписываем документ
             const signedDocument = await signDocument(documentID, 'Администратор');
 
-            // Update the document status in the parent component
+            // Обновляем статус документа в родительском компоненте
             onChangeStatus(documentID, 'Signed');
 
+            // Обновляем массив документов в родительском компоненте
             setUpdatedDocuments((prevDocuments) =>
-                prevDocuments.map((doc) =>
-                    doc.DocumentID === signedDocument.DocumentID ? signedDocument : doc
+                prevDocuments.map((document) =>
+                    document.DocumentID === signedDocument.DocumentID ? signedDocument : document
                 )
             );
         } catch (error) {
             console.error('Error signing document:', error.message);
         }
     };
+
     return (
         <table>
             <thead>

@@ -154,8 +154,6 @@ export const signDocument = async (documentID, signer) => {
 export const updateDocumentStatus = async (documentID, newStatus, sentByUserID) => {
     try {
         console.log('Updating document status:', documentID, newStatus, sentByUserID);
-
-        // Add this line to check the access level before making the request
         console.log('Checking access level:', sentByUserID);
 
         const response = await axios.put(`http://localhost:3001/api/documents/${documentID}/status`, {
@@ -168,7 +166,7 @@ export const updateDocumentStatus = async (documentID, newStatus, sentByUserID) 
     } catch (error) {
         console.error('Error updating document status:', error.response ? error.response.data : error.message);
 
-        // Add this line to log the full error object
+        // Добавьте обработку ошибок, например, вывод в консоль или в интерфейс пользователя
         console.error(error);
 
         throw error;

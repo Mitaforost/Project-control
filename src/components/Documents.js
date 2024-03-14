@@ -7,7 +7,7 @@ import DocumentTable from './DocumentTable';
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
-    const [userAccessLevel] = useState(1);
+    const [userAccessLevel, setUserAccessLevel] = useState(1);
     const [loading, setLoading] = useState(true);
     const [updatedDocuments, setUpdatedDocuments] = useState([]);
     useEffect(() => {
@@ -96,7 +96,7 @@ const Documents = () => {
                 throw new Error('Invalid sentByUserID. Must be a valid number.');
             }
 
-            const updatedDocument = await updateDocumentStatus(documentID, newStatus, numericSentByUserID);
+            const updatedDocument = await updateDocumentStatus(documentID, newStatus, numericSentByUserID); // Добавлен параметр numericSentByUserID
             onChangeStatus(documentID, newStatus);
 
             setUpdatedDocuments((prevDocuments) =>
@@ -109,7 +109,6 @@ const Documents = () => {
             alert(error.message);
         }
     };
-
 
     if (loading) {
         return <p>Loading...</p>;
@@ -127,8 +126,8 @@ const Documents = () => {
                             key={document.DocumentID}
                             document={document}
                             onChangeStatus={(documentID, newStatus) => handleChangeStatus(documentID, newStatus, userAccessLevel)}
-                            onSignDocument={(documentID) => handleSignDocument(documentID)}
-                            setUpdatedDocuments={setUpdatedDocuments}  // Передаем setUpdatedDocuments
+                            onSignDocument={(documentID) => handleSignDocument(documentID)} // Передаем ID документа
+                            setUpdatedDocuments={setUpdatedDocuments}
                         />
                     ))}
                 </div>

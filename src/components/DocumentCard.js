@@ -13,25 +13,29 @@ const DocumentCard = ({ document, onChangeStatus, onSignDocument, setUpdatedDocu
     const handleSignClick = async () => {
         try {
             const documentID = document.DocumentID;
-            const document = await getDocumentById(documentID);
+            const fetchedDocument = await getDocumentById(documentID);
 
-            if (!document || !document.Status) {
-                console.error('Document status not available:', document);
+            if (!fetchedDocument || !fetchedDocument.Status) {
+                console.error('Document status not available:', fetchedDocument);
                 return;
             }
 
-            console.log('Document status before signing:', document.Status);
+            console.log('Document status before signing:', fetchedDocument.Status);
 
             const signedDocument = await signDocument(documentID, 'Администратор');
 
-            // Update the document status in the parent component
+            // Обновляем статус документа в родительском компоненте
             onChangeStatus(documentID, 'Signed');
 
+            // Обновляем массив документов в родительском компоненте
             setUpdatedDocuments((prevDocuments) =>
-                prevDocuments.map((document) =>
-                    document.DocumentID === signedDocument.DocumentID ? signedDocument : document
+                prevDocuments.map((doc) =>
+                    doc.DocumentID === signedDocument.DocumentID ? signedDocument : doc
                 )
             );
+
+            // Дополнительно вызываем onSignDocument для выполнения других действий
+            await onSignDocument(documentID);
         } catch (error) {
             console.error('Error signing document:', error.message);
         }
