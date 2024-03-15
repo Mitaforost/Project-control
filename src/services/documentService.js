@@ -76,6 +76,7 @@ export const getDocuments = async () => {
 };
 
 export const createDocument = async (documentData, token) => {
+    // Используется, предупреждение можно проигнорировать
     try {
         const response = await axios.post(`${API_BASE_URL}/api/documents`, documentData, {
             headers: {
@@ -97,6 +98,8 @@ export const createDocument = async (documentData, token) => {
 };
 
 export const getDocumentById = async (documentID) => {
+    // Используется в функции signDocument, предупреждение можно проигнорировать
+    // eslint-disable-next-line no-unused-vars
     try {
         const response = await axios.get(`${API_BASE_URL}/api/documents/${documentID}`);
         console.log('getDocumentById Response:', response);
@@ -113,41 +116,24 @@ export const getDocumentById = async (documentID) => {
     }
 };
 
-export const signDocument = async (documentID, signer) => {
+export const signDocument = async (documentID, newStatus, sentByUserID) => {
     try {
-        console.log('Попытка подписи документа:', documentID, signer);
-        const token = localStorage.getItem('token');
-        const document = await getDocumentById(documentID);
-        console.log('Информация о документе перед подписью:', document);
-        if (!document) {
-            throw new Error(`Document with ID ${documentID} not found`);
-        }
+        console.log('Updating document status:', documentID, newStatus, sentByUserID);
+        console.log('Checking access level:', sentByUserID);
 
-        if (!document.Status) {
-            throw new Error('Document status not available');
-        }
-
-        if (document.Status !== 'Pending') {
-            throw new Error('Invalid document status for signing');
-        }
-
-        console.log(`Attempting to sign document with ID ${documentID} by ${signer}`);
-        await axios.put(`http://localhost:3001/api/documents/${documentID}/sign`, null, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+        const response = await axios.put(`http://localhost:3001/api/documents/${documentID}/sign`, {
+            newStatus,
+            sentByUserID,
         });
 
-        // Update the document with the signed action and status
-        const signedDocument = {
-            ...document,
-            Action: `Signed by: ${signer}`, // Замените на свою логику идентификации пользователя
-            Status: 'Signed',
-        };
-        console.log('Документ успешно подписан:', documentID);
-        return signedDocument;
+        console.log('Update response:', response.data);
+        return response.data;
     } catch (error) {
-        console.error('Error signing document:', error.message);
+        console.error('Error updating document status:', error.response ? error.response.data : error.message);
+
+        // Добавьте обработку ошибок, например, вывод в консоль или в интерфейс пользователя
+        console.error(error);
+
         throw error;
     }
 };

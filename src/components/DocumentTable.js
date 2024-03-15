@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { updateDocumentStatus, signDocument, getDocumentById } from '../services/documentService';
+import React, {useState} from 'react';
+import {signDocument, updateDocumentStatus} from '../services/documentService';
 
-const DocumentTable = ({ documents, onSignDocument, sentByUserID, onChangeStatus, userAccessLevel }) => {
+const DocumentTable = ({documents, onSignDocument, sentByUserID, onChangeStatus, userAccessLevel}) => {
     const [updatedDocuments, setUpdatedDocuments] = useState(documents);
     const handleChangeStatus = async (documentID, newStatus) => {
         try {
@@ -27,39 +27,30 @@ const DocumentTable = ({ documents, onSignDocument, sentByUserID, onChangeStatus
         }
     };
 
-    const handleSignClick = async (documentID) => {
+    const handleSignClick = async (documentID, newStatus) => {
         try {
-            // Получаем информацию о документе по его ID
-            const document = await getDocumentById(documentID);
+            const numericSentByUserID = parseInt(userAccessLevel, 10);
 
-            // Проверяем, найден ли документ и доступен ли его статус
-            if (!document || !document.Status) {
-                console.error('Document status not available:', document);
-                return;
+            if (isNaN(numericSentByUserID)) {
+                throw new Error('Invalid userAccessLevel. Must be a valid number.');
             }
 
-            // Если статус документа уже "Signed", выводим сообщение и завершаем функцию
-            if (document.Status === 'Signed') {
-                console.log('Document is already signed.');
-                return;
-            }
+            console.log('Numeric sentByUserID:', numericSentByUserID);
+            const updatedDocument = await signDocument(documentID, newStatus, numericSentByUserID);
+            onChangeStatus(documentID, newStatus);
 
-            // Подписываем документ
-            const signedDocument = await signDocument(documentID, 'Администратор');
-
-            // Обновляем статус документа в родительском компоненте
-            onChangeStatus(documentID, 'Signed');
-
-            // Обновляем массив документов в родительском компоненте
             setUpdatedDocuments((prevDocuments) =>
-                prevDocuments.map((document) =>
-                    document.DocumentID === signedDocument.DocumentID ? signedDocument : document
+                prevDocuments.map((doc) =>
+                    doc.DocumentID === updatedDocument.DocumentID ? updatedDocument : doc
                 )
             );
+            console.log(`Document ${documentID} status changed to ${newStatus}`);
         } catch (error) {
-            console.error('Error signing document:', error.message);
+            console.error('Error changing document status:', error.message);
+            alert(`Ошибка при изменении статуса документа: ${error.message}`);
         }
     };
+
 
     return (
         <table>
@@ -95,7 +86,7 @@ const DocumentTable = ({ documents, onSignDocument, sentByUserID, onChangeStatus
                             <div>
                                 <button
                                     className="btn-primary documents__btn"
-                                    onClick={() => handleSignClick(document.DocumentID)}
+                                    onClick={() => handleSignClick(document.DocumentID, 'Signed')}
                                 >
                                     Подписать
                                 </button>
